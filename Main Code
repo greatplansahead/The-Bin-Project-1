@@ -1,0 +1,31 @@
+// Now turn this trash into treasure!
+#include <Tiny4kOLED.h>
+
+#define Acel 26
+const float GAMMA = 0.7;
+const float RL10 = 50;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial1.begin(115200);
+  Serial1.println("Hello, Raspberry Pi Pico W!");
+  oled.begin();
+  oled.on();
+}
+void loop() {
+  // put your main code here, to run repeatedly:
+  // to find the lux
+int analogValue = analogRead(A0);
+float voltage = analogValue / 1024. * 5;
+float resistance = 2000 * voltage / (1 - voltage / 5);
+float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
+ 
+  if(lux >= 350) {
+    oled.setCursor(35, 7);
+    oled.print(F("Turn off the light!"));
+    Serial1.println(" Light is on");
+  } else {
+    Serial1.println("Light is off");
+  }
+  delay(1); // this speeds up the simulation
+}
