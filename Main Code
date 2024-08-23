@@ -1,19 +1,25 @@
 // Now turn this trash into treasure!
 #include <Tiny4kOLED.h>
+#include <RTClib.h>
 
-#define Acel 26
+#define Acel 26;
+const int buzzer = 16;
 const float GAMMA = 0.7;
 const float RL10 = 50;
+
+RTC_DS1307 rtc;
 
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
   Serial1.println("Hello, Raspberry Pi Pico W!");
-  oled.begin();
-  oled.on();
+  pinMode(buzzer, OUTPUT);
+  if (!rtc.begin()) {
+    Serial1.println("Couldn't find RTC");
+    while (1);
+  }
 }
 void loop() {
-  // put your main code here, to run repeatedly:
   // to find the lux
 int analogValue = analogRead(A0);
 float voltage = analogValue / 1024. * 5;
@@ -21,11 +27,21 @@ float resistance = 2000 * voltage / (1 - voltage / 5);
 float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
  
   if(lux >= 350) {
-    oled.setCursor(35, 7);
-    oled.print(F("Turn off the light!"));
+    oled.print("Turn off the light!");
     Serial1.println(" Light is on");
+    tone(buzzer, 500);
   } else {
     Serial1.println("Light is off");
+    oled.print("Light is off");
+    noTone(buzzer);
   }
+
+  //clock
+
+  DateTime current = rtc.now();
+  Serial1.print(current.hour());
+  Serial1.print(current.minute());
+
   delay(1); // this speeds up the simulation
 }
+  
