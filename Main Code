@@ -1,18 +1,46 @@
 // Now turn this trash into treasure!
-#include <Tiny4kOLED.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <RTClib.h>
+#include <Fonts/FreeSerifBold9pt7b.h>
+#include <DS1307RTC.h>
+#incluce <Time.h>
 
-#define Acel 26;
+#define Acel 26
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+
 const int buzzer = 16;
 const float GAMMA = 0.7;
 const float RL10 = 50;
 
 RTC_DS1307 rtc;
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
   Serial1.println("Hello, Raspberry Pi Pico W!");
+ 
+ //oled stuff
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+  Serial.println(F("SSD1306 allocation failed"));
+  for(;;);
+  }
+  delay(2000);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setFont(&FreeSerifBold9pt7b);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println("Hello, world!!!");
+  display.display(); 
+
+
+  rtc.begin();
   pinMode(buzzer, OUTPUT);
   if (!rtc.begin()) {
     Serial1.println("Couldn't find RTC");
@@ -27,13 +55,27 @@ float resistance = 2000 * voltage / (1 - voltage / 5);
 float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
  
   if(lux >= 350) {
-    oled.print("Turn off the light!");
     Serial1.println(" Light is on");
     tone(buzzer, 500);
+      display.clearDisplay();
+     display.setTextSize(1);
+     display.setTextColor(WHITE);
+     display.setFont(&FreeSerifBold9pt7b);
+    display.setCursor(0, 10);
+  // Display static text
+  display.println("Light is on");
+  display.display(); 
   } else {
     Serial1.println("Light is off");
-    oled.print("Light is off");
     noTone(buzzer);
+      display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setFont(&FreeSerifBold9pt7b);
+  display.setCursor(0, 10);
+  // Display static text
+  display.println("Light is off");
+  display.display(); 
   }
 
   //clock
@@ -42,6 +84,6 @@ float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
   Serial1.print(current.hour());
   Serial1.print(current.minute());
 
-  delay(1); // this speeds up the simulation
+  delay(100000); // this speeds up the simulation
 }
   
