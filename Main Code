@@ -4,8 +4,7 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <Fonts/FreeSerifBold9pt7b.h>
-#include "Org_01.h"
-
+#include "muMatrix8ptRegular.h"
 
 #define Acel 26
 #define SCREEN_WIDTH 128
@@ -84,8 +83,8 @@ void loop() {
       display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setFont(&Org_01);
-  display.setCursor(0, 10);
+  display.setFont(&muMatrix8ptRegular);
+  display.setCursor(0, 60);
   display.print("Turn of the\nLight!!");
   display.display();
 
@@ -96,15 +95,24 @@ void loop() {
    display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setFont(&Org_01);
-  display.setCursor(0, 10);
+  display.setFont(&muMatrix8ptRegular);
+  display.setCursor(0, 60);
   display.print("Light is off");
   display.display();
 
   }
 
+  //alarm
+  if (now.minute() == 56 && now.hour() == 15 && now.second() >= 0 ){
+  tone(buzzer, 500);
+  delay(1000);
+  noTone(buzzer);
+  Serial1.println("Buzzer on");
+  } else{
   //clock
-  display.setCursor(0, 30);
+  noTone(buzzer);
+  display.setFont(&FreeSerifBold9pt7b);
+  display.setCursor(0, 20);
   display.print(daysOfTheWeek[now.dayOfTheWeek()]);
   display.print(" ");
   display.print(now.month(), DEC);
@@ -118,9 +126,12 @@ void loop() {
   display.print(now.second(), DEC);
   display.display();
 
-  
+  }
+
+    
   Serial1.print(now.hour(), DEC);
   Serial1.print(now.minute(), DEC);
+  Serial1.println(now.second());
 
   delay(100); // this speeds up the simulation
 }
