@@ -4,7 +4,7 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <Fonts/FreeSerifBold9pt7b.h>
-
+#include "Org_01.h"
 
 
 #define Acel 26
@@ -20,7 +20,7 @@ int startTime;
 RTC_DS1307 rtc;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-char daysofTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 void setup() {
   // put your setup code here, to run once:
@@ -36,7 +36,7 @@ void setup() {
   }
   delay(2000);
   display.clearDisplay();
-  display.setTextSize(1);
+  display.setTextSize(0);
   display.setTextColor(WHITE);
   display.setFont(&FreeSerifBold9pt7b);
   display.setCursor(0, 10);
@@ -51,7 +51,7 @@ void setup() {
   if (!rtc.begin()) {
     Serial1.println("Couldn't find RTC");
     Serial1.flush();
-    while (1) delay (10);
+    while (1) delay (1);
   }
 
   if (!rtc.isrunning()) {
@@ -76,17 +76,17 @@ void loop() {
  unsigned long currentTime = millis();
  unsigned long elaspedTime = currentTime - startTime;
  DateTime now = rtc.now();
- 
-  if(lux >= 350 && elaspedTime >= 180000 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <=13 ) {
+
+  if(lux >= 350 && elaspedTime >= 10000 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 8){
     Serial1.println(" Light is on");
     tone(buzzer, 500);
     //oled
       display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setFont(&FreeSerifBold9pt7b);
+  display.setFont(&Org_01);
   display.setCursor(0, 10);
-  display.print("Turn of the Light!!");
+  display.print("Turn of the\nLight!!");
   display.display();
 
   } else {
@@ -96,18 +96,31 @@ void loop() {
    display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
-  display.setFont(&FreeSerifBold9pt7b);
+  display.setFont(&Org_01);
   display.setCursor(0, 10);
-  display.print("Lgiht is off");
+  display.print("Light is off");
   display.display();
 
   }
 
   //clock
+  display.setCursor(0, 30);
+  display.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  display.print(" ");
+  display.print(now.month(), DEC);
+  display.print("/");
+  display.print(now.day(), DEC);
+  display.print("\n");
+  display.print(now.hour(), DEC);
+  display.print (":");
+  display.print(now.minute(), DEC);
+  display.print(":");
+  display.print(now.second(), DEC);
+  display.display();
 
   
   Serial1.print(now.hour(), DEC);
   Serial1.print(now.minute(), DEC);
 
-  delay(1); // this speeds up the simulation
+  delay(100); // this speeds up the simulation
 }
