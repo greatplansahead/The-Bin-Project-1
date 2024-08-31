@@ -5,6 +5,9 @@
 #include <RTClib.h>
 #include <Fonts/FreeSerifBold9pt7b.h>
 #include "muMatrix8ptRegular.h"
+// accelerometer
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
 
 #define Acel 26
 #define SCREEN_WIDTH 128
@@ -15,8 +18,10 @@ const int buzzer = 16;
 const float GAMMA = 0.7;
 const float RL10 = 50;
 int startTime;
+bool alarmBuzzer = false;
 
 RTC_DS1307 rtc;
+MPU6050 mpu;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -45,12 +50,14 @@ void setup() {
 
  //buzzer
  pinMode(buzzer, OUTPUT);
+ //led
+ pinMode(led, OUTPUT);
  //clock
   
   if (!rtc.begin()) {
     Serial1.println("Couldn't find RTC");
     Serial1.flush();
-    while (1) delay (1);
+    while (1) delay (10);
   }
 
   if (!rtc.isrunning()) {
@@ -60,6 +67,14 @@ void setup() {
 
   //elapsed time
  startTime = millis();
+
+ // accelerometer
+
+ if (!mpu.begin()) {
+    Serial.println("Accelerometer not found");
+    while (1) {
+      delay(10);
+    }
 
 }
 
@@ -72,10 +87,15 @@ void loop() {
  float resistance = 2000 * voltage / (5 - voltage);
  float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
 
+//elapsed time
  unsigned long currentTime = millis();
  unsigned long elaspedTime = currentTime - startTime;
  DateTime now = rtc.now();
 
+ //accelerometer
+ mpu.getAccelerometerSensor()->getEvent(&event);
+
+//photoresistor
   if(lux >= 350 && elaspedTime >= 10000 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 8){
     Serial1.println(" Light is on");
     tone(buzzer, 500);
@@ -103,12 +123,16 @@ void loop() {
   }
 
   //alarm
-  if (now.minute() == 56 && now.hour() == 15 && now.second() >= 0 ){
+  if (now.minute() == 15 && now.hour() == 16 && now.second() >= 0  && !alarmBuzzer){
   tone(buzzer, 500);
-  delay(1000);
+  delay(5000);
   noTone(buzzer);
   Serial1.println("Buzzer on");
-  } else{
+  alarmBuzzer = true;
+  } else if ( now.second() != 0) {
+    alarmBuzzer = false;
+  }
+  else{
   //clock
   noTone(buzzer);
   display.setFont(&FreeSerifBold9pt7b);
@@ -132,6 +156,13 @@ void loop() {
   Serial1.print(now.hour(), DEC);
   Serial1.print(now.minute(), DEC);
   Serial1.println(now.second());
+
+
+//acceleromoeter test
+
+if(evet.acceleration.y => 5){
+  digitalWrite(led, HIGH);
+}
 
   delay(100); // this speeds up the simulation
 }
