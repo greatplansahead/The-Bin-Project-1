@@ -4,8 +4,8 @@
 #include <Adafruit_SSD1306.h>
 #include <RTClib.h>
 #include <Fonts/FreeSerifBold9pt7b.h>
-#include <DS1307RTC.h>
-#incluce <Time.h>
+
+
 
 #define Acel 26
 #define SCREEN_WIDTH 128
@@ -15,18 +15,23 @@
 const int buzzer = 16;
 const float GAMMA = 0.7;
 const float RL10 = 50;
+int startTime;
 
 RTC_DS1307 rtc;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+char daysofTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+
 void setup() {
   // put your setup code here, to run once:
   Serial1.begin(115200);
+  Wire.begin();
   Serial1.println("Hello, Raspberry Pi Pico W!");
+
  
  //oled stuff
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
-  Serial.println(F("SSD1306 allocation failed"));
+  Serial1.println(F("SSD1306 allocation failed"));
   for(;;);
   }
   delay(2000);
@@ -35,55 +40,74 @@ void setup() {
   display.setTextColor(WHITE);
   display.setFont(&FreeSerifBold9pt7b);
   display.setCursor(0, 10);
-  // Display static text
-  display.println("Hello, world!!!");
-  display.display(); 
+  // Display static text 
+  display.print("OLED IS ON");
+  display.display();
 
-
-  rtc.begin();
-  pinMode(buzzer, OUTPUT);
+ //buzzer
+ pinMode(buzzer, OUTPUT);
+ //clock
+  
   if (!rtc.begin()) {
     Serial1.println("Couldn't find RTC");
-    while (1);
+    Serial1.flush();
+    while (1) delay (10);
   }
+
+  if (!rtc.isrunning()) {
+    Serial1.println("RTC is not running, setting time");
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
+
+  //elapsed time
+ startTime = millis();
+
 }
+
+
+
 void loop() {
   // to find the lux
-int analogValue = analogRead(A0);
-float voltage = analogValue / 1024. * 5;
-float resistance = 2000 * voltage / (1 - voltage / 5);
-float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
+ int analogValue = analogRead(A0);
+ float voltage = analogValue / 1024. * 5;
+ float resistance = 2000 * voltage / (5 - voltage);
+ float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
+
+ unsigned long currentTime = millis();
+ unsigned long elaspedTime = currentTime - startTime;
+ DateTime now = rtc.now();
  
-  if(lux >= 350) {
+  if(lux >= 350 && elaspedTime >= 180000 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <=13 ) {
     Serial1.println(" Light is on");
     tone(buzzer, 500);
-      display.clearDisplay();
-     display.setTextSize(1);
-     display.setTextColor(WHITE);
-     display.setFont(&FreeSerifBold9pt7b);
-    display.setCursor(0, 10);
-  // Display static text
-  display.println("Light is on");
-  display.display(); 
-  } else {
-    Serial1.println("Light is off");
-    noTone(buzzer);
+    //oled
       display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(WHITE);
   display.setFont(&FreeSerifBold9pt7b);
   display.setCursor(0, 10);
-  // Display static text
-  display.println("Light is off");
-  display.display(); 
+  display.print("Turn of the Light!!");
+  display.display();
+
+  } else {
+    Serial1.println("Light is off");
+    noTone(buzzer);
+ //oled
+   display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setFont(&FreeSerifBold9pt7b);
+  display.setCursor(0, 10);
+  display.print("Lgiht is off");
+  display.display();
+
   }
 
   //clock
 
-  DateTime current = rtc.now();
-  Serial1.print(current.hour());
-  Serial1.print(current.minute());
-
-  delay(100000); // this speeds up the simulation
-}
   
+  Serial1.print(now.hour(), DEC);
+  Serial1.print(now.minute(), DEC);
+
+  delay(1); // this speeds up the simulation
+}
