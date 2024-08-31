@@ -51,7 +51,6 @@
       "red",
       [ "h57.6", "v-48", "h-240", "v-124.8" ]
     ],
-    [ "wokwi-ds1307-0:5V", "pico:3V3", "red", [ "h-67.2", "v-0.4" ] ],
     [ "wokwi-ds1307-0:GND", "pico:GND.5", "black", [ "h-57.6", "v105.6", "h-38.4", "v28.76" ] ],
     [ "wokwi-buzzer-0:1", "pico:GND.5", "black", [ "v0", "h105.6" ] ],
     [
@@ -77,8 +76,9 @@
     [ "oled1:VCC", "pico:VSYS", "red", [ "v-19.2", "h403.35", "v86.4" ] ],
     [ "oled1:SCL", "pico:GP5", "yellow", [ "v-28.8", "h201.9", "v144" ] ],
     [ "oled1:SDA", "pico:GP4", "cyan", [ "v-38.4", "h172.87", "v57.6" ] ],
-    [ "wokwi-ds1307-0:SDA", "pico:GP8", "violet", [ "h-67.2", "v18.9" ] ],
-    [ "wokwi-ds1307-0:SCL", "pico:GP9", "magenta", [ "h-48", "v47.8" ] ]
+    [ "wokwi-ds1307-0:5V", "pico:3V3_EN", "red", [ "h0" ] ],
+    [ "wokwi-ds1307-0:SDA", "pico:GP4", "violet", [ "h0" ] ],
+    [ "wokwi-ds1307-0:SCL", "pico:GP5", "violet", [ "h0" ] ]
   ],
   "dependencies": {}
 }
