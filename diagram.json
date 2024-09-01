@@ -62,11 +62,8 @@
     [ "wokwi-buzzer-0:2", "pico:GP16", "red", [ "v19.2", "h86", "v-96.04" ] ],
     [ "wokwi-mpu6050-0:VCC", "pico:3V3", "red", [ "v0" ] ],
     [ "wokwi-mpu6050-0:GND", "pico:GND.5", "black", [ "v0" ] ],
-    [ "wokwi-mpu6050-0:SCL", "pico:GP1", "blue", [ "h57.68", "v-28.8", "h67.2" ] ],
-    [ "wokwi-mpu6050-0:SDA", "pico:GP0", "blue", [ "h67.28", "v28.8" ] ],
     [ "oled1:GND", "pico:GND.5", "black", [ "v-48", "h278.4", "v307.16" ] ],
     [ "r2:2", "pico:GND.5", "black", [ "v0" ] ],
-    [ "led1:C", "pico:3V3", "red", [ "v0" ] ],
     [
       "pico:GP26",
       "wokwi-photoresistor-sensor-0:AO",
@@ -78,7 +75,10 @@
     [ "oled1:SDA", "pico:GP4", "cyan", [ "v-38.4", "h172.87", "v57.6" ] ],
     [ "wokwi-ds1307-0:5V", "pico:3V3_EN", "red", [ "h0" ] ],
     [ "wokwi-ds1307-0:SDA", "pico:GP4", "violet", [ "h0" ] ],
-    [ "wokwi-ds1307-0:SCL", "pico:GP5", "violet", [ "h0" ] ]
+    [ "wokwi-ds1307-0:SCL", "pico:GP5", "violet", [ "h0" ] ],
+    [ "led1:C", "pico:GP27", "white", [ "v-259.2", "h38.8" ] ],
+    [ "wokwi-mpu6050-0:SDA", "pico:GP6", "gold", [ "v0" ] ],
+    [ "wokwi-mpu6050-0:SCL", "pico:GP7", "gold", [ "v0" ] ]
   ],
   "dependencies": {}
 }
