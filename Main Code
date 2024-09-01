@@ -12,7 +12,7 @@
 #define Acel 26
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-#define led 27
+#define led 18
 
 const int buzzer = 16;
 const float GAMMA = 0.7;
@@ -100,7 +100,7 @@ void loop() {
  mpu.getAccelerometerSensor()->getEvent(&event);
 
 //photoresistor
-  if(lux >= 350 && elaspedTime >= 10 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 19 && !alarmBuzzer){
+  if(lux >= 350 && elaspedTime >= 10 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 19 ){
     Serial1.println(" Light is on");
     tone(buzzer, 500);
     delay(500);
@@ -112,12 +112,8 @@ void loop() {
   display.setCursor(0, 60);
   display.print("Turn of the\nLight!!");
   display.display();
-  alarmBuzzer = true;
 
-  } else if (now.second() >0){
-    alarmBuzzer = false;
-  }
-  else {
+  } else {
     Serial1.println("Light is off");
     noTone(buzzer);
  //oled
@@ -132,10 +128,13 @@ void loop() {
   }
 
   //alarm
-  if (now.minute() == 15 && now.hour() == 16 && now.second() >= 0  && !alarmBuzzer){
+  if (now.minute() == 9 && now.hour() == 19 && now.second() >= 0  && !alarmBuzzer){
   tone(buzzer, 500);
-  delay(5000);
+if(event.acceleration.y >= 0.7){
+  digitalWrite(led, HIGH);
+  Serial1.println("Turning off");
   noTone(buzzer);
+}
   Serial1.println("Buzzer on");
   alarmBuzzer = true;
   } else if ( now.second() != 0) {
@@ -169,9 +168,6 @@ void loop() {
 
 //acceleromoeter test
 
-if(event.acceleration.y >= 0.7){
-  digitalWrite(led, HIGH);
-}
 
   delay(100); // this speeds up the simulation
 }
