@@ -88,7 +88,7 @@ void loop() {
   // to find the lux
  int analogValue = analogRead(A0);
  float voltage = analogValue / 1024. * 5;
- float resistance = 2000 * voltage / (5 - voltage);
+ float resistance = 2000 * voltage / (1 - voltage / 5);
  float lux = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
 
 //elapsed time
@@ -100,7 +100,7 @@ void loop() {
  mpu.getAccelerometerSensor()->getEvent(&event);
 
 //photoresistor
-  if(lux >= 350 && elaspedTime >= 10 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 19 ){
+  if(lux >= 350 && elaspedTime >= 1000 && (now.hour(), DEC) >= 6 && (now.hour(), DEC) <= 8 ){
     Serial1.println(" Light is on");
     tone(buzzer, 500);
     delay(500);
@@ -110,7 +110,7 @@ void loop() {
   display.setTextColor(WHITE);
   display.setFont(&muMatrix8ptRegular);
   display.setCursor(0, 60);
-  display.print("Turn of the\nLight!!");
+  display.print("Turn of the Light!!");
   display.display();
 
   } else {
@@ -128,15 +128,40 @@ void loop() {
   }
 
   //alarm
-  if (now.minute() == 9 && now.hour() == 19 && now.second() >= 0  && !alarmBuzzer){
+  if (now.minute() == 30 && now.hour() == 6 && now.second() == 0  && !alarmBuzzer){
   tone(buzzer, 500);
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setFont(&muMatrix8ptRegular);
+  display.setCursor(0, 10);
+  // Display static text 
+  display.print("RISE AND\nSHINE");
+  display.display();
+   display.setFont(&FreeSerifBold9pt7b);
+  display.setCursor(0, 30);
+  display.print(daysOfTheWeek[now.dayOfTheWeek()]);
+  display.print(" ");
+  display.print(now.month(), DEC);
+  display.print("/");
+  display.print(now.day(), DEC);
+  display.print("\n");
+  display.print(now.hour(), DEC);
+  display.print (":");
+  display.print(now.minute(), DEC);
+  display.print(":");
+  display.print(now.second(), DEC);
+  display.display();
+  delay(7000); 
+   Serial1.println("Buzzer on");
+  alarmBuzzer = true;
 if(event.acceleration.y >= 0.7){
   digitalWrite(led, HIGH);
   Serial1.println("Turning off");
   noTone(buzzer);
-}
-  Serial1.println("Buzzer on");
-  alarmBuzzer = true;
+} 
+
+
   } else if ( now.second() != 0) {
     alarmBuzzer = false;
   }
