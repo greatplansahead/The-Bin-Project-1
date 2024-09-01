@@ -12,7 +12,7 @@
 #define Acel 26
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
-
+#define led 27
 
 const int buzzer = 16;
 const float GAMMA = 0.7;
@@ -21,7 +21,7 @@ int startTime;
 bool alarmBuzzer = false;
 
 RTC_DS1307 rtc;
-MPU6050 mpu;
+Adafruit_MPU6050 mpu;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -34,7 +34,7 @@ void setup() {
 
  
  //oled stuff
-  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { 
   Serial1.println(F("SSD1306 allocation failed"));
   for(;;);
   }
@@ -69,15 +69,19 @@ void setup() {
  startTime = millis();
 
  // accelerometer
-
- if (!mpu.begin()) {
+ Wire1.setSDA(6);
+ Wire1.setSCL(7);
+ Wire1.begin();
+ if (!mpu.begin(0x68, &Wire1)) {
     Serial.println("Accelerometer not found");
     while (1) {
       delay(10);
     }
 
 }
+}
 
+sensors_event_t event;
 
 
 void loop() {
@@ -96,9 +100,10 @@ void loop() {
  mpu.getAccelerometerSensor()->getEvent(&event);
 
 //photoresistor
-  if(lux >= 350 && elaspedTime >= 10000 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 8){
+  if(lux >= 350 && elaspedTime >= 10 && (now.hour(), DEC) >= 0 && (now.hour(), DEC) <= 19 && !alarmBuzzer){
     Serial1.println(" Light is on");
     tone(buzzer, 500);
+    delay(500);
     //oled
       display.clearDisplay();
   display.setTextSize(1);
@@ -107,8 +112,12 @@ void loop() {
   display.setCursor(0, 60);
   display.print("Turn of the\nLight!!");
   display.display();
+  alarmBuzzer = true;
 
-  } else {
+  } else if (now.second() >0){
+    alarmBuzzer = false;
+  }
+  else {
     Serial1.println("Light is off");
     noTone(buzzer);
  //oled
@@ -132,7 +141,7 @@ void loop() {
   } else if ( now.second() != 0) {
     alarmBuzzer = false;
   }
-  else{
+ 
   //clock
   noTone(buzzer);
   display.setFont(&FreeSerifBold9pt7b);
@@ -150,7 +159,7 @@ void loop() {
   display.print(now.second(), DEC);
   display.display();
 
-  }
+
 
     
   Serial1.print(now.hour(), DEC);
@@ -160,7 +169,7 @@ void loop() {
 
 //acceleromoeter test
 
-if(evet.acceleration.y => 5){
+if(event.acceleration.y >= 0.7){
   digitalWrite(led, HIGH);
 }
 
